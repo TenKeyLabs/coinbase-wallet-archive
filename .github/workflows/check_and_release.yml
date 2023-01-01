@@ -1,0 +1,40 @@
+name: Check & Release
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  push:
+    branches:
+      - "actions"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  check_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: checkout cwv
+        uses: actions/checkout@v3
+        with:
+          repository: osis/coinbase-wallet-version
+          path: "cwv_repo"
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "^1.13.1"
+      - id: check-version
+        run: |
+          found_version=$(./script.sh)
+          echo "found_version=${found_version}" >> $GITHUB_ENV
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        if: env.found_version != ''
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ env.found_version }}"
+          prerelease: false
+          title: "v${{ env.found_version }}"
+          files: |
+            *.zip
