@@ -17,7 +17,7 @@ jobs:
       - name: checkout cwv
         uses: actions/checkout@v3
         with:
-          repository: osis/coinbase-wallet-version
+          repository: TenKeyLabs/coinbase-wallet-archive
           path: "cwv_repo"
       - uses: actions/setup-go@v3
         with:
